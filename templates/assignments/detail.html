@@ -1,0 +1,77 @@
+{% extends "partials/shell.html" %}
+{% load lms_extras %}
+
+{% block title %}{{ assignment.title }} | سماتک LMS{% endblock %}
+{% block page_title %}جزئیات تکلیف{% endblock %}
+{% block breadcrumb %}تکالیف{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div><h1 style="font-size:19px">{{ assignment.title }}</h1>
+    <p>{{ assignment.course.name }} · نمره کل {{ assignment.max_score|fa }}</p></div>
+  <a class="btn btn-ghost" href="{% url 'assignments' %}">بازگشت</a>
+</div>
+
+<div style="display:grid;grid-template-columns:1.5fr 1fr;gap:18px;align-items:start" class="ad-grid">
+  <div class="card card-pad">
+    <h3 class="mb-16">توضیحات</h3>
+    <p class="muted" style="line-height:2.1;white-space:pre-line">{{ assignment.description }}</p>
+    <div class="row mt-24 wrap" style="gap:20px">
+      <div><div class="tiny muted">مهلت</div><div class="strong small">{{ assignment.due_date|jdate:"long" }} — {{ assignment.due_date|time:"H:i" }}</div></div>
+      <div><div class="tiny muted">بارم</div><div class="strong small">{{ assignment.max_score|fa }} نمره</div></div>
+      <div><div class="tiny muted">وضعیت</div>
+        {% if is_late %}<span class="badge badge-red">مهلت گذشته</span>{% else %}<span class="badge badge-green">باز</span>{% endif %}
+      </div>
+    </div>
+    {% if assignment.attachment %}
+      <a class="btn btn-ghost btn-sm mt-16" href="{{ assignment.attachment.url }}" download>
+        <svg class="icon icon-sm"><use href="#i-download"/></svg> فایل پیوست استاد
+      </a>
+    {% endif %}
+  </div>
+
+  <div>
+    {% if submission %}
+      <div class="card card-pad mb-16">
+        <div class="row-between mb-16">
+          <h3>ارسال شما</h3>
+          <span class="badge {{ submission.status|status_badge }}">{{ submission.get_status_display }}</span>
+        </div>
+        <div class="spec-list">
+          <div class="spec"><span class="k">تاریخ ارسال</span><span class="v">{{ submission.created_at|jdate:"long" }}</span></div>
+          {% if submission.file %}<div class="spec"><span class="k">فایل</span><a href="{{ submission.file.url }}" download>دانلود</a></div>{% endif %}
+        </div>
+        {% if submission.note %}<p class="small muted mt-16" style="line-height:2">{{ submission.note }}</p>{% endif %}
+      </div>
+      {% if submission.status == 'graded' %}
+        <div class="card card-pad" style="border-color:var(--success)">
+          <div class="row-between mb-8">
+            <h3>نمره و بازخورد</h3>
+            <span style="font-size:25px;font-weight:800;color:var(--success)">{{ submission.score|fa }}</span>
+          </div>
+          <p class="small" style="line-height:2">{{ submission.feedback|default:"بدون بازخورد" }}</p>
+          <div class="tiny muted mt-8">تصحیح: {{ submission.graded_at|jdate }}</div>
+        </div>
+      {% endif %}
+    {% elif enrollment %}
+      <div class="card card-pad">
+        <h3 class="mb-16">ارسال پاسخ</h3>
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="field"><label class="label">توضیح (اختیاری)</label>
+            <textarea class="textarea" name="note" placeholder="توضیح کوتاه…"></textarea></div>
+          <div class="field"><label class="label">فایل پاسخ</label>
+            <input class="input" type="file" name="file" style="padding:9px">
+            <div class="help">حداکثر ۵۰ مگابایت</div></div>
+          <button class="btn btn-primary btn-block" type="submit">
+            <svg class="icon icon-sm"><use href="#i-upload"/></svg> ارسال تکلیف
+          </button>
+        </form>
+      </div>
+    {% else %}
+      <div class="card card-pad"><p class="small muted">شما در این دوره ثبت‌نام نکرده‌اید.</p></div>
+    {% endif %}
+  </div>
+</div>
+<style>@media(max-width:1000px){.ad-grid{grid-template-columns:1fr!important}}</style>
+{% endblock %}

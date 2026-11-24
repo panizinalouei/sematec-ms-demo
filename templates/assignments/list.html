@@ -1,0 +1,45 @@
+{% extends "partials/shell.html" %}
+{% load lms_extras %}
+
+{% block title %}تکالیف | سماتک LMS{% endblock %}
+{% block page_title %}تکالیف{% endblock %}
+{% block breadcrumb %}تکالیف من{% endblock %}
+
+{% block content %}
+<div class="page-head"><div><h1>تکالیف من</h1><p>ارسال، پیگیری و مشاهده بازخورد استاد.</p></div></div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>عنوان</th><th>دوره</th><th>مهلت</th><th>وضعیت</th><th>نمره</th><th></th></tr></thead>
+      <tbody>
+        {% for row in rows %}
+          <tr>
+            <td><a class="strong" href="{% url 'assignment_detail' row.assignment.pk %}">{{ row.assignment.title|truncatechars:34 }}</a></td>
+            <td class="tiny muted">{{ row.assignment.course.name|truncatechars:22 }}</td>
+            <td class="tiny">{{ row.assignment.due_date|jdate }} · {{ row.assignment.due_date|time:"H:i" }}</td>
+            <td>
+              {% if row.submission %}
+                <span class="badge {{ row.submission.status|status_badge }}">{{ row.submission.get_status_display }}</span>
+              {% else %}
+                <span class="badge badge-gray">ارسال نشده</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if row.submission.score is not None %}
+                <strong>{{ row.submission.score|fa }}</strong><span class="tiny muted"> / {{ row.assignment.max_score|fa }}</span>
+              {% else %}—{% endif %}
+            </td>
+            <td><a class="btn btn-soft btn-sm" href="{% url 'assignment_detail' row.assignment.pk %}">{% if row.submission %}مشاهده{% else %}ارسال{% endif %}</a></td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6"><div class="empty-state" style="padding:30px">
+            <div class="glyph"><svg class="icon icon-lg"><use href="#i-clipboard"/></svg></div>
+            <p class="small">تکلیفی تعریف نشده است.</p>
+          </div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

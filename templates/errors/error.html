@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} | سماتک LMS{% endblock %}
+{% block body %}
+<div style="min-height:80vh;display:flex;align-items:center;justify-content:center;padding:24px">
+  <div class="center" style="max-width:480px">
+    <div style="font-size:88px;font-weight:900;color:var(--brand-100);line-height:1">{{ code }}</div>
+    <h1 class="mt-16">{{ title }}</h1>
+    <p class="muted mt-16">{{ message }}</p>
+    <div class="row mt-32" style="justify-content:center">
+      <a class="btn btn-primary" href="{% url 'login' %}">ورود به سامانه</a>
+      <a class="btn btn-ghost" href="{% url 'dashboard' %}">داشبورد</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

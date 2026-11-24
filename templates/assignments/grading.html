@@ -1,0 +1,60 @@
+{% extends "partials/shell.html" %}
+{% load lms_extras %}
+
+{% block title %}صف تصحیح | سماتک LMS{% endblock %}
+{% block page_title %}صف تصحیح{% endblock %}
+{% block breadcrumb %}ارزیابی{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div><h1>صف تصحیح</h1><p>تحویل‌های در انتظار نمره و بازخورد.</p></div>
+  <span class="badge badge-gold">{{ pending|length|fa }} مورد</span>
+</div>
+
+<div class="card mb-24">
+  <div class="card-head"><h3>در انتظار تصحیح</h3></div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>دانشجو</th><th>تکلیف</th><th>دوره</th><th>تاریخ</th><th></th></tr></thead>
+      <tbody>
+        {% for s in pending %}
+          <tr>
+            <td><div class="row" style="gap:8px">
+              <span class="avatar avatar-sm">{{ s.enrollment.student.person.initials }}</span>
+              <span class="strong">{{ s.enrollment.student.person.full_name }}</span></div></td>
+            <td class="tiny muted">{{ s.assignment.title|truncatechars:30 }}</td>
+            <td class="tiny muted">{{ s.assignment.course.name|truncatechars:20 }}</td>
+            <td class="tiny muted">{{ s.created_at|jdate }}</td>
+            <td><a class="btn btn-primary btn-sm" href="{% url 'grade_submission' s.pk %}">تصحیح</a></td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5"><div class="empty-state" style="padding:30px">
+            <div class="glyph"><svg class="icon icon-lg"><use href="#i-check-circle"/></svg></div>
+            <p class="small">صف تصحیح خالی است 🎉</p></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if graded %}
+  <div class="card">
+    <div class="card-head"><h3>اخیراً تصحیح‌شده</h3></div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>دانشجو</th><th>تکلیف</th><th>نمره</th><th>تاریخ</th></tr></thead>
+        <tbody>
+          {% for s in graded %}
+            <tr>
+              <td class="strong">{{ s.enrollment.student.person.full_name }}</td>
+              <td class="tiny muted">{{ s.assignment.title|truncatechars:30 }}</td>
+              <td><strong>{{ s.score|fa }}</strong><span class="tiny muted"> / {{ s.assignment.max_score|fa }}</span></td>
+              <td class="tiny muted">{{ s.graded_at|jdate }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

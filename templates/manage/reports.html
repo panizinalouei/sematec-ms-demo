@@ -1,0 +1,62 @@
+{% extends "partials/shell.html" %}
+{% load lms_extras %}
+
+{% block title %}گزارش‌ها | سماتک LMS{% endblock %}
+{% block page_title %}گزارش‌ها{% endblock %}
+{% block breadcrumb %}گزارش‌ها{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div><h1>گزارش ثبت‌نام‌ها</h1><p>عملکرد دوره‌ها و درآمد.</p></div>
+  <a class="btn btn-primary" href="#" onclick="window.print();return false;">
+    <svg class="icon icon-sm"><use href="#i-download"/></svg> خروجی
+  </a>
+</div>
+
+<div class="kpi-grid mb-24">
+  <div class="kpi"><div class="value">{{ summary.count|fa }}</div><div class="label">ثبت‌نام</div></div>
+  <div class="kpi"><div class="value">{{ summary.revenue|fa }}<small> تومان</small></div><div class="label">درآمد</div></div>
+  <div class="kpi"><div class="value">{{ summary.completed|fa }}</div><div class="label">تکمیل‌شده</div></div>
+  <div class="kpi"><div class="value">{{ summary.avg_progress|fa }}<small>٪</small></div><div class="label">میانگین پیشرفت</div></div>
+</div>
+
+<form class="card card-pad mb-24 row wrap" style="gap:12px;align-items:flex-end">
+  <div style="min-width:240px">
+    <label class="label">دوره</label>
+    <select class="select" name="course" onchange="this.form.submit()">
+      <option value="">همه دوره‌ها</option>
+      {% for c in courses %}
+        <option value="{{ c.id }}" {% if course_id == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <a class="btn btn-ghost" href="{% url 'reports' %}">حذف فیلتر</a>
+</form>
+
+<div class="card">
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>دانشجو</th><th>دوره</th><th>پیشرفت</th><th>پرداخت</th><th>وضعیت</th><th>تاریخ</th></tr></thead>
+      <tbody>
+        {% for en in rows %}
+          <tr>
+            <td class="strong">{{ en.student.person.full_name }}</td>
+            <td class="tiny muted">{{ en.course.name|truncatechars:24 }}</td>
+            <td>
+              <div class="row" style="gap:7px">
+                <div class="progress thin" style="width:58px"><span style="width:{{ en.progress }}%"></span></div>
+                <span class="tiny">{{ en.progress|fa }}٪</span>
+              </div>
+            </td>
+            <td class="tiny">{{ en.tuition_paid|money }}</td>
+            <td><span class="badge {{ en.status|status_badge }}">{{ en.get_status_display }}</span></td>
+            <td class="tiny muted">{{ en.enrolled_at|jdate }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6" class="muted small center" style="padding:26px">داده‌ای موجود نیست.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

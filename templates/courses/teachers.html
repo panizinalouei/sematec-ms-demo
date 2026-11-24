@@ -1,0 +1,32 @@
+{% extends "partials/shell.html" %}
+{% load lms_extras %}
+
+{% block title %}اساتید | سماتک LMS{% endblock %}
+{% block page_title %}اساتید سماتک{% endblock %}
+{% block breadcrumb %}اساتید{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div><h1>اساتید سماتک</h1><p>مدرس‌های متخصص با تجربه عملی در صنعت IT.</p></div>
+  <span class="badge badge-blue">{{ teachers|length|fa }} استاد</span>
+</div>
+
+<div class="grid" style="grid-template-columns:repeat(3,1fr)">
+  {% for t in teachers %}
+    <a class="teacher-card" href="{% url 'teacher_detail' t.pk %}">
+      <span class="avatar">
+        {% if t.person.photo %}<img src="{{ t.person.photo.url }}" alt="{{ t.person.full_name }}">
+        {% else %}{{ t.person.initials }}{% endif %}
+      </span>
+      <span class="grow">
+        <span class="t-name">{{ t.person.full_name }}</span>
+        <span class="t-role">{{ t.headline|default:"مدرس تخصصی سماتک" }}</span>
+        <span class="row mt-8" style="gap:6px">
+          <span class="badge badge-gray">{{ t.course_count|fa }} دوره</span>
+          {% if t.years_experience %}<span class="badge badge-gold">{{ t.years_experience|fa }} سال</span>{% endif %}
+        </span>
+      </span>
+    </a>
+  {% endfor %}
+</div>
+{% endblock %}

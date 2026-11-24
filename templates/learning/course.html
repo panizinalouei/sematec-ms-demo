@@ -1,0 +1,98 @@
+{% extends "partials/shell.html" %}
+{% load lms_extras %}
+
+{% block title %}{{ course.name }} | محیط یادگیری{% endblock %}
+{% block page_title %}{{ course.name|truncatechars:40 }}{% endblock %}
+{% block breadcrumb %}یادگیری{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 style="font-size:19px">{{ course.name }}</h1>
+    <p>{{ course.duration|hours }} · {{ course.get_level_display }} · {{ enrollment.teacher.person.full_name|default:"—" }}</p>
+  </div>
+  <div class="row">
+    {% if enrollment.progress >= 100 and not enrollment.certificate %}
+      <a class="btn btn-gold" href="{% url 'certificate_issue' enrollment.id %}">
+        <svg class="icon icon-sm"><use href="#i-badge"/></svg> دریافت گواهی
+      </a>
+    {% elif enrollment.certificate %}
+      <a class="btn btn-soft" href="{% url 'certificate_detail' enrollment.certificate.serial %}">گواهی من</a>
+    {% endif %}
+    <a class="btn btn-ghost" href="{% url 'my_courses' %}">بازگشت</a>
+  </div>
+</div>
+
+<div class="card card-pad mb-24">
+  <div class="row-between mb-8">
+    <span class="strong">پیشرفت دوره</span>
+    <span class="strong" style="color:var(--brand-600)">{{ enrollment.progress|fa }}٪</span>
+  </div>
+  <div class="progress"><span style="width:{{ enrollment.progress }}%"></span></div>
+  <div class="row mt-16 wrap" style="gap:20px">
+    <span class="small muted"><strong style="color:var(--n-800)">{{ lessons|length|fa }}</strong> جلسه</span>
+    <span class="small muted"><strong style="color:var(--n-800)">{{ done_ids|length|fa }}</strong> تکمیل‌شده</span>
+    {% if attendance.total %}
+      <span class="small muted">حضور: <strong style="color:var(--success)">{{ attendance.present|fa }}</strong> از {{ attendance.total|fa }}</span>
+    {% endif %}
+  </div>
+</div>
+
+<div class="learn-grid">
+  <div class="card lesson-list">
+    <div class="card-head"><h3>سرفصل‌ها</h3><span class="tiny muted">{{ lessons|length|fa }} جلسه</span></div>
+    {% for lesson in lessons %}
+      <a class="lesson-item" href="{% url 'lesson_view' course.slug lesson.id %}">
+        <span class="state {% if lesson.id in done_ids %}done{% endif %}">
+          {% if lesson.id in done_ids %}✓{% else %}{{ forloop.counter|fa }}{% endif %}
+        </span>
+        <span class="grow">{{ lesson.title|truncatechars:34 }}</span>
+        <span class="tiny muted">{{ lesson.duration_minutes|fa }}′</span>
+      </a>
+    {% empty %}
+      <div style="padding:16px" class="small muted">سرفصل‌ها در حال آماده‌سازی است.</div>
+    {% endfor %}
+  </div>
+
+  <div>
+    {% if first_lesson %}
+      <div class="card card-pad mb-24 center">
+        <div style="width:72px;height:72px;border-radius:22px;background:var(--brand-50);color:var(--brand-600);display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+          <svg class="icon" style="width:32px;height:32px"><use href="#i-play"/></svg>
+        </div>
+        <h2 style="font-size:17px">ادامه یادگیری</h2>
+        <p class="small muted mt-8 mb-24">{% if enrollment.progress %}از جایی که رها کردید ادامه دهید.{% else %}اولین جلسه را شروع کنید.{% endif %}</p>
+        <a class="btn btn-primary btn-lg" href="{% url 'lesson_view' course.slug first_lesson.id %}">
+          {% if enrollment.progress %}ادامه جلسه{% else %}شروع جلسه اول{% endif %}
+        </a>
+      </div>
+    {% endif %}
+
+    <div class="card mb-24">
+      <div class="card-head"><h3>جلسات کلاس</h3></div>
+      <div style="padding:4px 17px 12px">
+        {% for s in sessions %}
+          <div class="row" style="padding:9px 0;border-bottom:1px solid var(--n-100)">
+            <span class="badge {% if s.is_held %}badge-green{% else %}badge-gray{% endif %}">{% if s.is_held %}برگزار شد{% else %}پیش رو{% endif %}</span>
+            <span class="grow small">{{ s.date|jdate }} · {{ s.start_time|time:"H:i" }}</span>
+          </div>
+        {% empty %}
+          <p class="small muted">جلسه‌ای ثبت نشده است.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card card-pad">
+      <h3 class="mb-16">تکالیف این دوره</h3>
+      {% for a in course.assignments.all %}
+        <div class="row-between" style="padding:8px 0;border-bottom:1px solid var(--n-100)">
+          <a class="small strong" href="{% url 'assignment_detail' a.pk %}">{{ a.title|truncatechars:30 }}</a>
+          <span class="tiny muted">{{ a.due_date|jdate }}</span>
+        </div>
+      {% empty %}
+        <p class="small muted">تکلیفی تعریف نشده است.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

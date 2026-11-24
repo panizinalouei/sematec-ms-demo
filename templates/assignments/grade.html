@@ -1,0 +1,45 @@
+{% extends "partials/shell.html" %}
+{% load lms_extras %}
+
+{% block title %}تصحیح | سماتک LMS{% endblock %}
+{% block page_title %}تصحیح تکلیف{% endblock %}
+{% block breadcrumb %}تصحیح{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div><h1 style="font-size:19px">{{ submission.assignment.title }}</h1>
+    <p>{{ submission.enrollment.student.person.full_name }} · {{ submission.assignment.course.name }}</p></div>
+  <a class="btn btn-ghost" href="{% url 'grading' %}">بازگشت</a>
+</div>
+
+<div style="display:grid;grid-template-columns:1.2fr 1fr;gap:18px;align-items:start" class="gr-grid">
+  <div class="card card-pad">
+    <h3 class="mb-16">پاسخ دانشجو</h3>
+    <p class="muted" style="line-height:2">{{ submission.note|default:"توضیحی وارد نشده است." }}</p>
+    {% if submission.file %}
+      <a class="btn btn-ghost btn-sm mt-16" href="{{ submission.file.url }}" download>
+        <svg class="icon icon-sm"><use href="#i-download"/></svg> دانلود فایل
+      </a>
+    {% endif %}
+    <hr style="border:none;border-top:1px solid var(--n-100);margin:18px 0">
+    <div class="tiny muted">توضیح تکلیف</div>
+    <p class="small mt-8" style="line-height:2">{{ submission.assignment.description }}</p>
+  </div>
+
+  <div class="card card-pad">
+    <h3 class="mb-16">ثبت نمره</h3>
+    <form method="post">
+      {% csrf_token %}
+      <div class="field"><label class="label">نمره (از {{ submission.assignment.max_score|fa }})</label>
+        <input class="input" type="number" name="score" step="0.5" min="0"
+          max="{{ submission.assignment.max_score }}" value="{{ submission.score|default:'' }}" required></div>
+      <div class="field"><label class="label">بازخورد</label>
+        <textarea class="textarea" name="feedback" placeholder="نقاط قوت و موارد قابل بهبود…">{{ submission.feedback }}</textarea></div>
+      <button class="btn btn-primary btn-block" type="submit">
+        <svg class="icon icon-sm"><use href="#i-check"/></svg> ثبت نمره
+      </button>
+    </form>
+  </div>
+</div>
+<style>@media(max-width:1000px){.gr-grid{grid-template-columns:1fr!important}}</style>
+{% endblock %}

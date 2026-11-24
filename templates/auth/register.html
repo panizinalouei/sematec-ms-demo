@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}ثبت‌نام دانشجو | سماتک{% endblock %}
+
+{% block body %}
+<div class="auth">
+  <aside class="auth-side">
+    <img src="{% static 'img/logo.webp' %}" alt="سماتک" style="height:42px;width:fit-content;filter:brightness(0) invert(1)">
+    <div>
+      <span class="badge" style="background:rgba(255,195,0,.15);color:var(--gold-500);border:1px solid rgba(255,195,0,.3)">شروع مسیر یادگیری</span>
+      <h2>حساب دانشجویی<br>خود را بسازید</h2>
+      <p>با ثبت‌نام در سامانه، به دوره‌ها، جلسات، آزمون‌ها و گواهی دیجیتال دسترسی خواهید داشت.</p>
+      <div class="auth-features">
+        <div class="auth-feature"><span class="tick">✓</span> ثبت‌نام آنلاین در دوره‌ها</div>
+        <div class="auth-feature"><span class="tick">✓</span> پیگیری پیشرفت و نمرات</div>
+        <div class="auth-feature"><span class="tick">✓</span> گواهی معتبر با QR</div>
+      </div>
+    </div>
+    <p class="tiny" style="color:#8fa4c9">© ۱۴۰۵ آموزشگاه سماتک</p>
+  </aside>
+
+  <main class="auth-main">
+    <div class="auth-box">
+      <div class="logo"><img src="{% static 'img/logo.webp' %}" alt="سماتک"></div>
+      <h1 style="font-size:22px;margin-bottom:5px">ثبت‌نام دانشجو</h1>
+      <p class="muted small mb-24">اطلاعات خود را وارد کنید.</p>
+
+      {% if form.non_field_errors %}<div class="form-error">{{ form.non_field_errors.0 }}</div>{% endif %}
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 12px">
+          <div class="field"><label class="label">نام</label>{{ form.first_name }}{{ form.first_name.errors }}</div>
+          <div class="field"><label class="label">نام خانوادگی</label>{{ form.last_name }}{{ form.last_name.errors }}</div>
+        </div>
+        <div class="field"><label class="label">موبایل</label>{{ form.phone }}{{ form.phone.errors }}</div>
+        <div class="field"><label class="label">ایمیل</label>{{ form.email }}{{ form.email.errors }}</div>
+        <div class="field"><label class="label">رمز عبور</label>{{ form.password1 }}{{ form.password1.errors }}</div>
+        <div class="field"><label class="label">تکرار رمز</label>{{ form.password2 }}{{ form.password2.errors }}</div>
+        <button class="btn btn-primary btn-block btn-lg" type="submit">ثبت‌نام</button>
+      </form>
+
+      <p class="small muted center mt-24">
+        حساب دارید؟ <a class="strong" href="{% url 'login' %}">ورود</a>
+      </p>
+    </div>
+  </main>
+</div>
+{% endblock %}

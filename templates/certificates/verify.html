@@ -1,0 +1,54 @@
+{% extends "partials/shell.html" %}
+{% load lms_extras %}
+
+{% block title %}اعتبارسنجی گواهی | سماتک LMS{% endblock %}
+{% block page_title %}اعتبارسنجی گواهی{% endblock %}
+{% block breadcrumb %}اعتبارسنجی{% endblock %}
+
+{% block content %}
+<div style="max-width:680px;margin:0 auto">
+  <div class="center mb-24">
+    <div style="width:72px;height:72px;border-radius:22px;background:var(--brand-50);color:var(--brand-600);display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+      <svg class="icon" style="width:32px;height:32px"><use href="#i-shield"/></svg>
+    </div>
+    <h1 style="font-size:22px">اعتبارسنجی گواهی سماتک</h1>
+    <p class="muted small mt-8">شماره سریال گواهی را وارد کنید.</p>
+  </div>
+
+  <form class="card card-pad" method="get">
+    <div class="field">
+      <label class="label" for="serial">شماره سریال</label>
+      <input class="input ltr" id="serial" name="serial" value="{{ code }}" placeholder="SMTC-2026-1001">
+    </div>
+    <button class="btn btn-primary btn-block" type="submit">
+      <svg class="icon icon-sm"><use href="#i-search"/></svg> بررسی
+    </button>
+  </form>
+
+  {% if error %}
+    <div class="card card-pad mt-16" style="border-color:#f5c9c9;background:var(--danger-soft)">
+      <div class="row" style="gap:9px;color:#9b2323">
+        <svg class="icon"><use href="#i-alert"/></svg><span class="small strong">{{ error }}</span>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if cert %}
+    <div class="card card-pad mt-16" style="border-color:var(--success)">
+      <div class="row-between mb-16">
+        <div class="row" style="gap:9px;color:#157a3a">
+          <svg class="icon"><use href="#i-check-circle"/></svg><span class="strong">گواهی معتبر است</span>
+        </div>
+        <span class="badge badge-green">{{ cert.issued_at|jdate }}</span>
+      </div>
+      <div class="spec-list">
+        <div class="spec"><span class="k">صاحب گواهی</span><span class="v">{{ cert.enrollment.student.person.full_name }}</span></div>
+        <div class="spec"><span class="k">دوره</span><span class="v">{{ cert.enrollment.course.name }}</span></div>
+        <div class="spec"><span class="k">مدت آموزش</span><span class="v">{{ cert.hours|hours }}</span></div>
+        <div class="spec"><span class="k">سریال</span><span class="v ltr">{{ cert.serial }}</span></div>
+      </div>
+      <a class="btn btn-ghost btn-block btn-sm mt-16" href="{% url 'certificate_detail' cert.serial %}">مشاهده گواهی</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

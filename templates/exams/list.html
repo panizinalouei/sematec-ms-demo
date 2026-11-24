@@ -1,0 +1,48 @@
+{% extends "partials/shell.html" %}
+{% load lms_extras %}
+
+{% block title %}آزمون‌ها | سماتک LMS{% endblock %}
+{% block page_title %}آزمون‌ها{% endblock %}
+{% block breadcrumb %}آزمون‌های من{% endblock %}
+
+{% block content %}
+<div class="page-head"><div><h1>آزمون‌های من</h1><p>آزمون‌های فعال و نتایج گذشته.</p></div></div>
+
+<div class="grid" style="grid-template-columns:repeat(2,1fr)">
+  {% for row in rows %}
+    <div class="card card-pad">
+      <div class="row-between mb-8">
+        <span class="badge badge-blue">{{ row.exam.course.name|truncatechars:22 }}</span>
+        {% if row.attempt %}<span class="badge badge-green">ثبت شده</span>
+        {% else %}<span class="badge badge-gold">در انتظار</span>{% endif %}
+      </div>
+      <h3 style="font-size:15px">{{ row.exam.title }}</h3>
+      <p class="small muted mt-8">{{ row.exam.description|truncatechars:80 }}</p>
+      <div class="row mt-16 wrap" style="gap:14px">
+        <span class="tiny muted"><svg class="icon icon-sm" style="vertical-align:-3px"><use href="#i-clock"/></svg> {{ row.exam.duration_minutes|fa }} دقیقه</span>
+        <span class="tiny muted">{{ row.exam.questions.count|fa }} سوال</span>
+        <span class="tiny muted">قبولی {{ row.exam.pass_score|fa }}٪</span>
+      </div>
+      <div class="mt-16">
+        {% if row.attempt %}
+          <div class="row-between mb-8">
+            <span class="small strong">نمره: {{ row.attempt.score|floatformat:0|fa }} از {{ row.exam.total_score|floatformat:0|fa }}</span>
+            <span class="badge {% if row.attempt.percent >= row.exam.pass_score %}badge-green{% else %}badge-red{% endif %}">{{ row.attempt.percent|fa }}٪</span>
+          </div>
+          <a class="btn btn-ghost btn-block btn-sm" href="{% url 'exam_result' row.attempt.pk %}">مشاهده کارنامه</a>
+        {% else %}
+          <a class="btn btn-primary btn-block btn-sm" href="{% url 'exam_start' row.exam.pk %}">
+            <svg class="icon icon-sm"><use href="#i-play"/></svg> شروع آزمون
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  {% empty %}
+    <div class="card empty-state" style="grid-column:1/-1">
+      <div class="glyph"><svg class="icon icon-lg"><use href="#i-award"/></svg></div>
+      <h3>آزمونی در دسترس نیست</h3>
+      <p class="small mt-8">پس از شروع دوره، آزمون‌ها اینجا نمایش داده می‌شوند.</p>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

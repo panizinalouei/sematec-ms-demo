@@ -1,0 +1,44 @@
+{% extends "partials/shell.html" %}
+{% load lms_extras %}
+
+{% block title %}پروفایل | سماتک LMS{% endblock %}
+{% block page_title %}پروفایل{% endblock %}
+{% block breadcrumb %}پروفایل{% endblock %}
+
+{% block content %}
+<div class="page-head"><div><h1>پروفایل من</h1><p>اطلاعات حساب و نقش شما در سامانه.</p></div></div>
+
+<div style="display:grid;grid-template-columns:320px 1fr;gap:18px;align-items:start" class="pf-grid">
+  <div class="card card-pad center">
+    <span class="avatar avatar-xl" style="margin:0 auto 14px">
+      {% if user.person.photo %}<img src="{{ user.person.photo.url }}" alt="">{% else %}{{ user.initials }}{% endif %}
+    </span>
+    <h2 style="font-size:17px">{{ user.display_name }}</h2>
+    <span class="badge badge-blue mt-8">{{ user.get_role_display }}</span>
+    <div class="spec-list mt-24" style="text-align:right">
+      <div class="spec"><span class="k">نام کاربری</span><span class="v ltr">{{ user.username }}</span></div>
+      <div class="spec"><span class="k">ایمیل</span><span class="v ltr">{{ user.person.email_address|default:"—" }}</span></div>
+      <div class="spec"><span class="k">موبایل</span><span class="v ltr">{{ user.person.phone_number|default:"—" }}</span></div>
+      <div class="spec"><span class="k">شهر</span><span class="v">{{ user.person.home_address|default:"—" }}</span></div>
+    </div>
+  </div>
+
+  <div class="card card-pad">
+    <h3 class="mb-16">ویرایش اطلاعات</h3>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="form-error">{{ form.non_field_errors.0 }}</div>{% endif %}
+      {% for field in form %}
+        <div class="field">
+          <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}<div class="help">{{ field.help_text }}</div>{% endif %}
+          {{ field.errors }}
+        </div>
+      {% endfor %}
+      <button class="btn btn-primary" type="submit">ذخیره تغییرات</button>
+    </form>
+  </div>
+</div>
+<style>@media(max-width:900px){.pf-grid{grid-template-columns:1fr!important}}</style>
+{% endblock %}

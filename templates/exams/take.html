@@ -1,0 +1,62 @@
+{% extends "partials/shell.html" %}
+{% load lms_extras %}
+
+{% block title %}{{ exam.title }} | سماتک LMS{% endblock %}
+{% block page_title %}{{ exam.title|truncatechars:36 }}{% endblock %}
+{% block breadcrumb %}آزمون{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div><h1 style="font-size:19px">{{ exam.title }}</h1>
+    <p>{{ exam.course.name }} · {{ questions|length|fa }} سوال · قبولی {{ exam.pass_score|fa }}٪</p></div>
+  <div class="row">
+    <span class="timer" id="timer">{{ exam.duration_minutes|fa }}:۰۰</span>
+    <a class="btn btn-ghost btn-sm" href="{% url 'exams' %}">انصراف</a>
+  </div>
+</div>
+
+<form method="post" id="examForm">
+  {% csrf_token %}
+  {% for q in questions %}
+    <div class="question-card">
+      <div class="row-between mb-8">
+        <span class="badge badge-gray">سوال {{ forloop.counter|fa }}</span>
+        <span class="tiny muted">{{ q.score|fa }} نمره · {{ q.get_kind_display }}</span>
+      </div>
+      <p class="strong mt-8" style="line-height:2">{{ q.text }}</p>
+
+      {% if q.kind == 'mcq' %}
+        <label class="option"><input type="radio" name="q{{ q.id }}" value="a"><span><strong>الف.</strong> {{ q.option_a }}</span></label>
+        <label class="option"><input type="radio" name="q{{ q.id }}" value="b"><span><strong>ب.</strong> {{ q.option_b }}</span></label>
+        {% if q.option_c %}<label class="option"><input type="radio" name="q{{ q.id }}" value="c"><span><strong>ج.</strong> {{ q.option_c }}</span></label>{% endif %}
+        {% if q.option_d %}<label class="option"><input type="radio" name="q{{ q.id }}" value="d"><span><strong>د.</strong> {{ q.option_d }}</span></label>{% endif %}
+      {% elif q.kind == 'true_false' %}
+        <label class="option"><input type="radio" name="q{{ q.id }}" value="true"><span>صحیح</span></label>
+        <label class="option"><input type="radio" name="q{{ q.id }}" value="false"><span>غلط</span></label>
+      {% elif q.kind == 'blank' %}
+        <input class="input mt-8" name="q{{ q.id }}" placeholder="پاسخ را وارد کنید…">
+      {% else %}
+        <textarea class="textarea mt-8" name="q{{ q.id }}" placeholder="پاسخ خود را بنویسید…"></textarea>
+      {% endif %}
+    </div>
+  {% endfor %}
+
+  <div class="card card-pad row-between wrap">
+    <span class="small muted">پس از ارسال، پاسخ‌ها قابل تغییر نیستند.</span>
+    <button class="btn btn-primary" type="submit" onclick="return confirm('آزمون را ارسال می‌کنید؟')">
+      <svg class="icon icon-sm"><use href="#i-send"/></svg> ارسال و پایان
+    </button>
+  </div>
+</form>
+
+<script>
+(function(){
+  var total = {{ exam.duration_minutes }} * 60, el = document.getElementById('timer');
+  function fmt(n){return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0');}
+  setInterval(function(){
+    if(total<=0){document.getElementById('examForm').submit();return;}
+    total--; el.textContent = fmt(total).replace(/\d/g, function(d){return '۰۱۲۳۴۵۶۷۸۹'[d]});
+  },1000);
+})();
+</script>
+{% endblock %}

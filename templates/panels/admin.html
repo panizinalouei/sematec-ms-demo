@@ -1,0 +1,124 @@
+{% extends "partials/shell.html" %}
+{% load lms_extras %}
+
+{% block title %}داشبورد مدیریت | سماتک LMS{% endblock %}
+{% block page_title %}داشبورد مدیریت{% endblock %}
+{% block breadcrumb %}مدیر سامانه{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div><h1>نمای کلی آموزشگاه</h1><p>وضعیت دوره‌ها، دانشجویان و درآمد در یک نگاه.</p></div>
+  <div class="row">
+    <a class="btn btn-ghost" href="{% url 'reports' %}"><svg class="icon icon-sm"><use href="#i-download"/></svg> گزارش‌ها</a>
+    <a class="btn btn-primary" href="{% url 'course_create' %}"><svg class="icon icon-sm"><use href="#i-plus"/></svg> دوره جدید</a>
+  </div>
+</div>
+
+<div class="kpi-grid mb-24">
+  <div class="kpi">
+    <div class="kpi-icon" style="background:var(--brand-50);color:var(--brand-600)"><svg class="icon"><use href="#i-users"/></svg></div>
+    <div class="value">{{ total_students|fa }}</div><div class="label">دانشجو</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-icon" style="background:var(--success-soft);color:#157a3a"><svg class="icon"><use href="#i-book"/></svg></div>
+    <div class="value">{{ total_courses|fa }}</div><div class="label">دوره منتشرشده</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-icon" style="background:var(--gold-100);color:var(--gold-700)"><svg class="icon"><use href="#i-dollar"/></svg></div>
+    <div class="value">{{ revenue|fa }}<small> تومان</small></div><div class="label">درآمد ثبت‌نام</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-icon" style="background:#f3e8ff;color:#7c3aed"><svg class="icon"><use href="#i-calendar"/></svg></div>
+    <div class="value">{{ active_classrooms|fa }}</div><div class="label">کلاس فعال</div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1.7fr 1fr;gap:18px;align-items:start" class="dash-grid">
+  <div>
+    <div class="card card-pad mb-24">
+      <div class="row-between mb-16">
+        <div><h3>روند ثبت‌نام</h3><p class="tiny muted">۸ ماه اخیر</p></div>
+        <span class="badge badge-blue">{{ total_enrollments|fa }} ثبت‌نام فعال</span>
+      </div>
+      <div class="bars" style="height:210px">
+        {% for s in series %}
+          <div class="bar-col">
+            <span class="val">{{ s.count|fa }}</span>
+            <div class="bar" style="height:{% widthratio s.count 60 100 %}%"></div>
+            <span class="lbl">{{ s.label }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>دوره‌های پرمخاطب</h3><a class="tiny strong" href="{% url 'manage_courses' %}">مدیریت</a></div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>دوره</th><th>دسته</th><th>دانشجو</th><th>شهریه</th></tr></thead>
+          <tbody>
+            {% for c in top_courses %}
+              <tr>
+                <td><a class="strong" href="{% url 'course_detail' c.slug %}">{{ c.name|truncatechars:30 }}</a></td>
+                <td class="tiny muted">{{ c.category.name }}</td>
+                <td><strong>{{ c.enrollment_count|fa }}</strong></td>
+                <td class="tiny">{{ c.tuition|money }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="card card-pad mb-16">
+      <h3 class="mb-16">دسته‌بندی‌ها</h3>
+      {% for row in by_category %}
+        <div style="margin-bottom:12px">
+          <div class="row-between" style="font-size:12.5px;margin-bottom:4px">
+            <span>{{ row.category__name }}</span><span class="strong">{{ row.c|fa }}</span>
+          </div>
+          <div class="progress thin"><span style="width:{% widthratio row.c 8 100 %}%"></span></div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="card mb-16">
+      <div class="card-head"><h3>اساتید</h3><a class="tiny strong" href="{% url 'teachers' %}">همه</a></div>
+      <div style="padding:4px 16px 12px">
+        {% for t in teachers %}
+          <div class="row" style="padding:9px 0;border-bottom:1px solid var(--n-100);gap:9px">
+            <span class="avatar avatar-sm">
+              {% if t.person.photo %}<img src="{{ t.person.photo.url }}" alt="">{% else %}{{ t.person.initials }}{% endif %}
+            </span>
+            <div class="grow">
+              <div class="strong" style="font-size:12.5px">{{ t.person.full_name }}</div>
+              <div class="tiny muted">{{ t.classroom_count|fa }} کلاس · {{ t.student_count|fa }} دانشجو</div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>آخرین ثبت‌نام‌ها</h3></div>
+      <div style="padding:4px 16px 12px">
+        {% for en in recent %}
+          <div class="row" style="padding:9px 0;border-bottom:1px solid var(--n-100);gap:9px">
+            <span class="avatar avatar-sm">{{ en.student.person.initials }}</span>
+            <div class="grow">
+              <div class="strong" style="font-size:12.5px">{{ en.student.person.full_name }}</div>
+              <div class="tiny muted">{{ en.course.name|truncatechars:22 }}</div>
+            </div>
+            <span class="tiny muted">{{ en.enrolled_at|jdate }}</span>
+          </div>
+        {% empty %}
+          <p class="small muted">ثبت‌نامی ثبت نشده است.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+<style>@media(max-width:1000px){.dash-grid{grid-template-columns:1fr!important}}</style>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load static lms_extras %}
+
+{% block title %}گواهی {{ cert.serial }} | سماتک{% endblock %}
+
+{% block body %}
+<div style="max-width:880px;margin:0 auto;padding:32px 20px">
+  <div class="row-between mb-24">
+    <a class="btn btn-ghost btn-sm" href="{% url 'certificates' %}">بازگشت</a>
+    <a class="btn btn-primary btn-sm" href="#" onclick="window.print();return false;">چاپ / PDF</a>
+  </div>
+
+  <div class="cert">
+    <div class="cert-inner">
+      <img src="{% static 'img/logo.webp' %}" alt="سماتک" style="height:48px;margin:0 auto 14px">
+      <div class="tiny" style="letter-spacing:3px;color:var(--n-500)">CERTIFICATE OF COMPLETION</div>
+      <h2 class="mt-16">گواهی پایان دوره</h2>
+      <p class="muted small mt-8">این گواهی به</p>
+      <div style="font-size:26px;font-weight:800;color:var(--brand-700);margin:12px 0">
+        {{ cert.enrollment.student.person.full_name }}
+      </div>
+      <p class="muted small">به پاس تکمیل موفقیت‌آمیز دوره</p>
+      <div style="font-size:17px;font-weight:700;margin:8px 0">{{ cert.enrollment.course.name }}</div>
+      <p class="small muted">به مدت {{ cert.hours|hours }} آموزش تخصصی در آموزشگاه سماتک اعطا می‌شود.</p>
+
+      <div class="row-between mt-32" style="align-items:flex-end;gap:18px;flex-wrap:wrap">
+        <div style="text-align:right">
+          <div class="tiny muted">شماره سریال</div>
+          <div class="serial">{{ cert.serial }}</div>
+          <div class="tiny muted mt-8">تاریخ صدور: {{ cert.issued_at|jdate:"long" }}</div>
+        </div>
+        <div class="qr" aria-label="QR">
+          {% for i in "1234567890123456789012345678901234567890123456789" %}
+            <i style="opacity:{% cycle '1' '0.15' '0.7' '0.1' '0.9' '0.3' %}"></i>
+          {% endfor %}
+        </div>
+        <div style="text-align:center">
+          <div style="width:120px;border-top:1px solid var(--n-300);padding-top:5px" class="tiny muted">مهر آموزشگاه سماتک</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-pad mt-24">
+    <h3 class="mb-8" style="font-size:15px">اعتبارسنجی</h3>
+    <p class="small muted">برای بررسی اصالت، شماره سریال را در صفحه اعتبارسنجی وارد کنید.</p>
+    <div class="row mt-16 wrap">
+      <code class="ltr" style="background:var(--n-50);padding:7px 13px;border-radius:8px;border:1px solid var(--n-200)">{{ cert.serial }}</code>
+      <a class="btn btn-ghost btn-sm" href="{% url 'verify_serial' cert.serial %}">بررسی در سامانه</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% load static lms_extras %}
+
+{% block body %}
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <a class="sidebar-brand" href="{% url 'dashboard' %}">
+      <img src="{% static 'img/logo.webp' %}" alt="سماتک">
+      <div>
+        <div style="font-weight:800;font-size:15px;color:#fff;letter-spacing:.5px">SEMATEC</div>
+        <div class="brand-sub">LMS</div>
+      </div>
+    </a>
+
+    <nav class="sidebar-nav">
+      <div class="nav-label">پنل من</div>
+      <a class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+        <svg class="icon"><use href="#i-grid"/></svg> داشبورد
+      </a>
+
+      {% if user.role == 'student' %}
+        <a class="nav-item {% if request.resolver_match.url_name == 'my_courses' %}active{% endif %}" href="{% url 'my_courses' %}">
+          <svg class="icon"><use href="#i-book"/></svg> دوره‌های من
+        </a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'assignments' %}active{% endif %}" href="{% url 'assignments' %}">
+          <svg class="icon"><use href="#i-clipboard"/></svg> تکالیف
+        </a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'exams' %}active{% endif %}" href="{% url 'exams' %}">
+          <svg class="icon"><use href="#i-award"/></svg> آزمون‌ها
+        </a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'certificates' %}active{% endif %}" href="{% url 'certificates' %}">
+          <svg class="icon"><use href="#i-badge"/></svg> گواهی‌ها
+        </a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'attendance' %}active{% endif %}" href="{% url 'attendance' %}">
+          <svg class="icon"><use href="#i-calendar"/></svg> حضور من
+        </a>
+      {% endif %}
+
+      {% if user.role == 'teacher' %}
+        <a class="nav-item {% if request.resolver_match.url_name == 'grading' %}active{% endif %}" href="{% url 'grading' %}">
+          <svg class="icon"><use href="#i-clipboard"/></svg> تصحیح تکالیف
+          {% if unread_count %}<span class="nav-badge">{{ unread_count|fa }}</span>{% endif %}
+        </a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'attendance' %}active{% endif %}" href="{% url 'attendance' %}">
+          <svg class="icon"><use href="#i-calendar"/></svg> حضور و غیاب
+        </a>
+        <a class="nav-item" href="{% url 'courses' %}">
+          <svg class="icon"><use href="#i-book"/></svg> دوره‌های من
+        </a>
+      {% endif %}
+
+      {% if user.can_manage %}
+        <div class="nav-label">مدیریت آموزشگاه</div>
+        <a class="nav-item {% if request.resolver_match.url_name == 'manage_courses' %}active{% endif %}" href="{% url 'manage_courses' %}">
+          <svg class="icon"><use href="#i-book"/></svg> دوره‌ها
+        </a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'enrollments_admin' %}active{% endif %}" href="{% url 'enrollments_admin' %}">
+          <svg class="icon"><use href="#i-users"/></svg> ثبت‌نام‌ها
+        </a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'reports' %}active{% endif %}" href="{% url 'reports' %}">
+          <svg class="icon"><use href="#i-chart"/></svg> گزارش‌ها
+        </a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'attendance' %}active{% endif %}" href="{% url 'attendance' %}">
+          <svg class="icon"><use href="#i-calendar"/></svg> حضور و غیاب
+        </a>
+      {% endif %}
+
+      {% if user.is_manager %}
+        <a class="nav-item {% if request.resolver_match.url_name == 'manage_users' %}active{% endif %}" href="{% url 'manage_users' %}">
+          <svg class="icon"><use href="#i-user"/></svg> کاربران
+        </a>
+      {% endif %}
+
+      <div class="nav-label">عمومی</div>
+      <a class="nav-item {% if request.resolver_match.url_name == 'courses' %}active{% endif %}" href="{% url 'courses' %}">
+        <svg class="icon"><use href="#i-search"/></svg> کاتالوگ دوره‌ها
+      </a>
+      <a class="nav-item {% if request.resolver_match.url_name == 'teachers' %}active{% endif %}" href="{% url 'teachers' %}">
+        <svg class="icon"><use href="#i-users"/></svg> اساتید
+      </a>
+      <a class="nav-item {% if request.resolver_match.url_name == 'verify' %}active{% endif %}" href="{% url 'verify' %}">
+        <svg class="icon"><use href="#i-shield"/></svg> اعتبارسنجی گواهی
+      </a>
+      <a class="nav-item {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}" href="{% url 'notifications' %}">
+        <svg class="icon"><use href="#i-bell"/></svg> اعلان‌ها
+        {% if unread_count %}<span class="nav-badge">{{ unread_count|fa }}</span>{% endif %}
+      </a>
+      <a class="nav-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'profile' %}">
+        <svg class="icon"><use href="#i-settings"/></svg> پروفایل
+      </a>
+      <a class="nav-item" href="{% url 'logout' %}">
+        <svg class="icon"><use href="#i-logout"/></svg> خروج
+      </a>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="row" style="gap:6px;margin-bottom:3px">
+        <svg class="icon icon-sm" style="color:var(--gold-500)"><use href="#i-info"/></svg>
+        <span>نسخه دمو</span>
+      </div>
+      سماتک · آموزش تخصصی IT
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn nav-toggle" onclick="document.body.classList.toggle('nav-open')" aria-label="منو">
+        <svg class="icon"><use href="#i-menu"/></svg>
+      </button>
+      <div>
+        <h1>{% block page_title %}داشبورد{% endblock %}</h1>
+        <div class="crumb">سماتک / {% block breadcrumb %}داشبورد{% endblock %}</div>
+      </div>
+      <div class="grow"></div>
+      <form class="search-mini" action="{% url 'courses' %}" method="get">
+        <svg class="icon icon-sm"><use href="#i-search"/></svg>
+        <input type="search" name="q" placeholder="جستجوی دوره…">
+      </form>
+      <a class="icon-btn" href="{% url 'notifications' %}" aria-label="اعلان‌ها">
+        <svg class="icon"><use href="#i-bell"/></svg>
+        {% if unread_count %}<span class="badge-dot"></span>{% endif %}
+      </a>
+      <a class="user-chip" href="{% url 'profile' %}">
+        <span class="avatar">
+          {% if user.person.photo %}<img src="{{ user.person.photo.url }}" alt="{{ user.display_name }}">
+          {% else %}{{ user.initials }}{% endif %}
+        </span>
+        <span>
+          <span class="name">{{ user.display_name }}</span>
+          <span class="role">{{ user.get_role_display }}</span>
+        </span>
+      </a>
+    </header>
+
+    <main class="content">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+{% endblock %}

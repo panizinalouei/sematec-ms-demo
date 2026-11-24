@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static lms_extras %}
+
+{% block title %}تأیید کد | سماتک{% endblock %}
+
+{% block body %}
+<div class="auth">
+  <aside class="auth-side">
+    <img src="{% static 'img/logo.webp' %}" alt="سماتک" style="height:42px;width:fit-content;filter:brightness(0) invert(1)">
+    <div>
+      <h2>یک قدم تا<br>کلاس‌هایت!</h2>
+      <p>کد ۶ رقمی ارسال‌شده به موبایل را وارد کنید.</p>
+    </div>
+    <p class="tiny" style="color:#8fa4c9">© ۱۴۰۵ آموزشگاه سماتک</p>
+  </aside>
+
+  <main class="auth-main">
+    <div class="auth-box">
+      <div class="logo"><img src="{% static 'img/logo.webp' %}" alt="سماتک"></div>
+      <h1 style="font-size:22px;margin-bottom:5px">کد تأیید</h1>
+      <p class="muted small mb-24">کد ارسال‌شده به <strong class="ltr">{{ phone|fa }}</strong> را وارد کنید.</p>
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="field">
+          <label class="label" for="code">کد ۶ رقمی</label>
+          <input class="input ltr" id="code" name="code" placeholder="------" maxlength="6"
+                 inputmode="numeric" value="123456" autofocus>
+        </div>
+        <button class="btn btn-primary btn-block btn-lg" type="submit">تأیید و ورود</button>
+      </form>
+
+      <div class="demo-box">در حالت دمو، کد <code>123456</code> معتبر است.</div>
+      <p class="small muted center mt-16"><a href="{% url 'otp_login' %}">ارسال مجدد</a></p>
+    </div>
+  </main>
+</div>
+{% endblock %}

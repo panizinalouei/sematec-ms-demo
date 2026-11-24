@@ -1,0 +1,90 @@
+{% extends "partials/shell.html" %}
+{% load lms_extras %}
+
+{% block title %}کارشناس آموزش | سماتک LMS{% endblock %}
+{% block page_title %}کارشناس آموزش{% endblock %}
+{% block breadcrumb %}امور آموزشی{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div><h1>پیگیری امور آموزشی</h1><p>ثبت‌نام‌ها، ظرفیت کلاس‌ها و جلسات امروز.</p></div>
+  <a class="btn btn-primary" href="{% url 'enrollments_admin' %}">مدیریت ثبت‌نام‌ها</a>
+</div>
+
+<div class="kpi-grid mb-24">
+  <div class="kpi">
+    <div class="kpi-icon" style="background:var(--brand-50);color:var(--brand-600)"><svg class="icon"><use href="#i-users"/></svg></div>
+    <div class="value">{{ new_today|fa }}</div><div class="label">ثبت‌نام امروز</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-icon" style="background:var(--gold-100);color:var(--gold-700)"><svg class="icon"><use href="#i-clock"/></svg></div>
+    <div class="value">{{ pending|fa }}</div><div class="label">در انتظار تأیید</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-icon" style="background:var(--success-soft);color:#157a3a"><svg class="icon"><use href="#i-check-circle"/></svg></div>
+    <div class="value">{{ total_enrollments|fa }}</div><div class="label">ثبت‌نام فعال</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-icon" style="background:#f3e8ff;color:#7c3aed"><svg class="icon"><use href="#i-calendar"/></svg></div>
+    <div class="value">{{ sessions_today|length|fa }}</div><div class="label">جلسه امروز</div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1.4fr 1fr;gap:18px;align-items:start" class="dash-grid">
+  <div class="card">
+    <div class="card-head"><h3>ثبت‌نام‌های اخیر</h3><a class="tiny strong" href="{% url 'enrollments_admin' %}">همه</a></div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>دانشجو</th><th>دوره</th><th>تاریخ</th><th>وضعیت</th></tr></thead>
+        <tbody>
+          {% for en in recent %}
+            <tr>
+              <td>
+                <div class="row" style="gap:8px">
+                  <span class="avatar avatar-sm">{{ en.student.person.initials }}</span>
+                  <span class="strong">{{ en.student.person.full_name }}</span>
+                </div>
+              </td>
+              <td class="tiny muted">{{ en.course.name|truncatechars:24 }}</td>
+              <td class="tiny muted">{{ en.enrolled_at|jdate }}</td>
+              <td><span class="badge {{ en.status|status_badge }}">{{ en.get_status_display }}</span></td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="4" class="muted small">ثبت‌نامی ثبت نشده است.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div>
+    <div class="card card-pad mb-16">
+      <h3 class="mb-16">ظرفیت کلاس‌ها</h3>
+      {% for c in cohorts %}
+        <div style="margin-bottom:13px">
+          <div class="row-between" style="font-size:12.5px;margin-bottom:4px">
+            <span>{{ c.course.name|truncatechars:22 }}</span>
+            <span class="strong">{{ c.seats|fa }}/{{ c.capacity|fa }}</span>
+          </div>
+          <div class="progress thin"><span style="width:{% widthratio c.seats c.capacity 100 %}%"></span></div>
+        </div>
+      {% empty %}
+        <p class="small muted">کلاس فعالی وجود ندارد.</p>
+      {% endfor %}
+    </div>
+
+    <div class="card card-pad">
+      <h3 class="mb-16">جلسات امروز</h3>
+      {% for s in sessions_today %}
+        <div style="padding:9px 0;border-bottom:1px solid var(--n-100)">
+          <div class="strong" style="font-size:12.5px">{{ s.classroom.course.name|truncatechars:24 }}</div>
+          <div class="tiny muted mt-8">{{ s.classroom.name }} · {{ s.start_time|time:"H:i" }}</div>
+        </div>
+      {% empty %}
+        <p class="small muted">امروز جلسه‌ای برنامه‌ریزی نشده است.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+<style>@media(max-width:1000px){.dash-grid{grid-template-columns:1fr!important}}</style>
+{% endblock %}

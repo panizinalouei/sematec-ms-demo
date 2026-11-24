@@ -1,0 +1,36 @@
+{% load lms_extras %}
+<a class="course-card" href="{% url 'course_detail' course.slug %}">
+  <div class="cover">
+    <img src="{{ course.cover_url }}" alt="{{ course.name }}" loading="lazy">
+    <div class="badges">
+      <span class="badge {{ course.level_class }}">{{ course.get_level_display }}</span>
+      {% if course.course_type == 'hybrid' %}<span class="badge badge-gold">ترکیبی</span>{% endif %}
+    </div>
+  </div>
+  <div class="body">
+    <div class="row-between" style="margin-bottom:6px">
+      <span class="tiny muted">{{ course.category.name }}</span>
+      <span class="tiny muted ltr">{{ course.course_code }}</span>
+    </div>
+    <h3>{{ course.name }}</h3>
+    <div class="meta">
+      <span><svg class="icon icon-sm"><use href="#i-clock"/></svg> {{ course.duration|hours }}</span>
+      <span><svg class="icon icon-sm"><use href="#i-play"/></svg> {{ course.lessons.count|fa }} جلسه</span>
+      <span><svg class="icon icon-sm"><use href="#i-users"/></svg> {{ course.enrolled_count|fa }}</span>
+    </div>
+    {% with t=course.teachers.first %}
+      {% if t %}
+        <div class="teacher">
+          <span class="avatar avatar-sm" style="width:24px;height:24px;font-size:10px">
+            {% if t.person.photo %}<img src="{{ t.person.photo.url }}" alt="">{% else %}{{ t.person.initials }}{% endif %}
+          </span>
+          {{ t.person.full_name }}
+        </div>
+      {% endif %}
+    {% endwith %}
+    <div class="foot">
+      <span class="price">{{ course.tuition|money }}</span>
+      <span class="btn btn-soft btn-sm">مشاهده</span>
+    </div>
+  </div>
+</a>

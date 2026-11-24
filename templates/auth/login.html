@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}ورود به سامانه | سماتک{% endblock %}
+
+{% block body %}
+<div class="auth">
+  <aside class="auth-side">
+    <img src="{% static 'img/logo.webp' %}" alt="سماتک" style="height:42px;width:fit-content;filter:brightness(0) invert(1)">
+    <div>
+      <span class="badge" style="background:rgba(255,195,0,.15);color:var(--gold-500);border:1px solid rgba(255,195,0,.3)">سامانه مدیریت یادگیری</span>
+      <h2>یادگیری، تمرین<br>و پیشرفت — در یک جا</h2>
+      <p>محیط اختصاصی سماتک برای دانشجو، استاد و مدیر آموزشگاه: کلاس، محتوا، آزمون، حضور و گواهی.</p>
+      <div class="auth-features">
+        <div class="auth-feature"><span class="tick">✓</span> دسترسی به جلسات و محتوای دوره در هر زمان</div>
+        <div class="auth-feature"><span class="tick">✓</span> تکلیف، آزمون و نمره در یک پنل</div>
+        <div class="auth-feature"><span class="tick">✓</span> پیگیری درصد پیشرفت و دریافت گواهی</div>
+        <div class="auth-feature"><span class="tick">✓</span> گزارش‌های آموزشی برای مدیریت</div>
+      </div>
+    </div>
+    <p class="tiny" style="color:#8fa4c9">© ۱۴۰۵ آموزشگاه سماتک</p>
+  </aside>
+
+  <main class="auth-main">
+    <div class="auth-box">
+      <div class="logo"><img src="{% static 'img/logo.webp' %}" alt="سماتک"></div>
+      <h1 class="auth-title">ورود به سامانه</h1>
+      <p class="auth-sub">برای ادامه، نام کاربری و رمز عبور خود را وارد کنید.</p>
+
+      <div class="tabs">
+        <span class="tab active">نام کاربری</span>
+        <a class="tab" href="{% url 'otp_login' %}">ورود با موبایل</a>
+      </div>
+
+      {% if form.non_field_errors %}
+      <div class="form-error" role="alert">
+        <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>
+        <span>{{ form.non_field_errors.0 }}</span>
+      </div>
+      {% endif %}
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="field">
+          <label class="label" for="{{ form.username.id_for_label }}">نام کاربری</label>
+          <div class="input-group">
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            {{ form.username }}
+          </div>
+          {{ form.username.errors }}
+        </div>
+        <div class="field">
+          <label class="label" for="{{ form.password.id_for_label }}">رمز عبور</label>
+          <div class="input-group has-toggle">
+            <svg class="icon" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="3"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+            {{ form.password }}
+            <button type="button" class="pw-toggle" data-toggle-password="{{ form.password.id_for_label }}" aria-label="نمایش رمز عبور">
+              <svg class="icon icon-sm"><use href="#i-eye"/></svg>
+            </button>
+          </div>
+          {{ form.password.errors }}
+        </div>
+        <div class="auth-row">
+          <label class="check">{{ form.remember }} مرا به خاطر بسپار</label>
+        </div>
+        <button class="btn btn-primary btn-block btn-lg" type="submit">ورود</button>
+      </form>
+
+      <p class="auth-foot">
+        حساب ندارید؟ <a class="strong" href="{% url 'register' %}">ثبت‌نام دانشجو</a>
+      </p>
+    </div>
+  </main>
+</div>
+{% endblock %}

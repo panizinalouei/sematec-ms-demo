@@ -1,0 +1,46 @@
+{% extends "partials/shell.html" %}
+{% load lms_extras %}
+
+{% block title %}حضور و غیاب | سماتک LMS{% endblock %}
+{% block page_title %}حضور و غیاب{% endblock %}
+{% block breadcrumb %}حضور{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div><h1>گزارش حضور</h1><p>نرخ حضور {{ rate|fa }}٪ در {{ total|fa }} رکورد ({{ scope }}).</p></div>
+</div>
+
+<div class="kpi-grid mb-24">
+  <div class="kpi"><div class="kpi-icon" style="background:var(--success-soft);color:#157a3a"><svg class="icon"><use href="#i-check"/></svg></div>
+    <div class="value">{{ summary.present|fa }}</div><div class="label">حاضر</div></div>
+  <div class="kpi"><div class="kpi-icon" style="background:var(--gold-100);color:var(--gold-700)"><svg class="icon"><use href="#i-clock"/></svg></div>
+    <div class="value">{{ summary.late|fa }}</div><div class="label">تأخیر</div></div>
+  <div class="kpi"><div class="kpi-icon" style="background:var(--danger-soft);color:var(--danger)"><svg class="icon"><use href="#i-x"/></svg></div>
+    <div class="value">{{ summary.absent|fa }}</div><div class="label">غایب</div></div>
+  <div class="kpi"><div class="kpi-icon" style="background:var(--n-100);color:var(--n-600)"><svg class="icon"><use href="#i-file"/></svg></div>
+    <div class="value">{{ summary.excused|fa }}</div><div class="label">موجه</div></div>
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>دانشجو</th><th>دوره</th><th>جلسه</th><th>تاریخ</th><th>وضعیت</th></tr></thead>
+      <tbody>
+        {% for r in records %}
+          <tr>
+            <td><div class="row" style="gap:8px">
+              <span class="avatar avatar-sm">{{ r.enrollment.student.person.initials }}</span>
+              <span class="strong">{{ r.enrollment.student.person.full_name }}</span></div></td>
+            <td class="tiny muted">{{ r.session.classroom.course.name|truncatechars:22 }}</td>
+            <td class="tiny">جلسه {{ r.session.number|fa }}</td>
+            <td class="tiny muted">{{ r.session.date|jdate }}</td>
+            <td><span class="badge {{ r.status|status_badge }}">{{ r.get_status_display }}</span></td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5"><div class="empty-state" style="padding:30px"><p class="small">رکوردی ثبت نشده است.</p></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

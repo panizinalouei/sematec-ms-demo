@@ -1,0 +1,43 @@
+{% extends "partials/shell.html" %}
+{% load lms_extras %}
+
+{% block title %}کارنامه | سماتک LMS{% endblock %}
+{% block page_title %}کارنامه آزمون{% endblock %}
+{% block breadcrumb %}نتایج{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div><h1 style="font-size:19px">{{ attempt.exam.title }}</h1>
+    <p>{{ attempt.exam.course.name }} · {{ attempt.submitted_at|jdate:"full" }}</p></div>
+  <a class="btn btn-ghost" href="{% url 'exams' %}">بازگشت</a>
+</div>
+
+<div class="kpi-grid mb-24" style="grid-template-columns:repeat(3,1fr)">
+  <div class="kpi"><div class="value">{{ attempt.score|floatformat:0|fa }}<small> / {{ attempt.exam.total_score|floatformat:0|fa }}</small></div>
+    <div class="label">نمره کسب‌شده</div></div>
+  <div class="kpi"><div class="value">{{ attempt.percent|fa }}<small>٪</small></div><div class="label">درصد</div>
+    {% if attempt.percent >= attempt.exam.pass_score %}<span class="delta delta-up">قبول</span>
+    {% else %}<span class="delta delta-down">نیاز به تلاش بیشتر</span>{% endif %}</div>
+  <div class="kpi"><div class="value">{{ attempt.answers.count|fa }}</div><div class="label">پاسخ ثبت‌شده</div></div>
+</div>
+
+<h2 class="mb-16" style="font-size:17px">مرور پاسخ‌ها</h2>
+{% for a in attempt.answers.all %}
+  <div class="question-card">
+    <div class="row-between mb-8">
+      <span class="badge badge-gray">سوال {{ forloop.counter|fa }}</span>
+      {% if a.is_correct %}<span class="badge badge-green">درست · {{ a.awarded_score|fa }}</span>
+      {% elif a.is_correct is None %}<span class="badge badge-gold">در انتظار تصحیح</span>
+      {% else %}<span class="badge badge-red">نادرست</span>{% endif %}
+    </div>
+    <p class="strong mt-8">{{ a.question.text }}</p>
+    <div class="small muted mt-8">
+      {% if a.question.kind == 'descriptive' %}پاسخ شما: {{ a.text_answer|default:"—" }}
+      {% elif a.question.kind == 'true_false' %}پاسخ شما: {% if a.selected_bool %}صحیح{% else %}غلط{% endif %}
+      {% elif a.question.kind == 'blank' %}پاسخ شما: {{ a.text_answer|default:"—" }}
+      {% else %}پاسخ شما: {{ a.selected_option|upper|default:"—" }}
+        {% if not a.is_correct %} · صحیح: {{ a.question.correct_option|upper }}{% endif %}{% endif %}
+    </div>
+  </div>
+{% endfor %}
+{% endblock %}

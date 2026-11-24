@@ -1,0 +1,60 @@
+{% extends "partials/shell.html" %}
+{% load lms_extras %}
+
+{% block title %}دوره‌ها | سماتک LMS{% endblock %}
+{% block page_title %}کاتالوگ دوره‌ها{% endblock %}
+{% block breadcrumb %}دوره‌ها{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div><h1>دوره‌های آموزشی</h1><p>مسیر یادگیری خود را انتخاب کنید.</p></div>
+  <span class="badge badge-blue">{{ courses|length|fa }} دوره</span>
+</div>
+
+<form class="card card-pad mb-24 row wrap" style="gap:12px;align-items:flex-end" method="get">
+  <div style="flex:2;min-width:200px">
+    <label class="label">جستجو</label>
+    <input class="input" type="search" name="q" value="{{ q }}" placeholder="نام دوره…">
+  </div>
+  <div style="flex:1;min-width:150px">
+    <label class="label">دسته</label>
+    <select class="select" name="category" onchange="this.form.submit()">
+      <option value="">همه</option>
+      {% for c in categories %}<option value="{{ c.slug }}" {% if active_category == c.slug %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+    </select>
+  </div>
+  <div style="flex:1;min-width:140px">
+    <label class="label">سطح</label>
+    <select class="select" name="level" onchange="this.form.submit()">
+      <option value="">همه</option>
+      <option value="basic" {% if active_level == 'basic' %}selected{% endif %}>مقدماتی</option>
+      <option value="intermediate" {% if active_level == 'intermediate' %}selected{% endif %}>متوسط</option>
+      <option value="advanced" {% if active_level == 'advanced' %}selected{% endif %}>پیشرفته</option>
+      <option value="comprehensive" {% if active_level == 'comprehensive' %}selected{% endif %}>جامع</option>
+    </select>
+  </div>
+  <div style="flex:1;min-width:140px">
+    <label class="label">مرتب‌سازی</label>
+    <select class="select" name="sort" onchange="this.form.submit()">
+      <option value="">پیشنهاد سماتک</option>
+      <option value="cheap" {% if request.GET.sort == 'cheap' %}selected{% endif %}>ارزان‌ترین</option>
+      <option value="expensive" {% if request.GET.sort == 'expensive' %}selected{% endif %}>گران‌ترین</option>
+    </select>
+  </div>
+  <button class="btn btn-primary" type="submit"><svg class="icon icon-sm"><use href="#i-search"/></svg> جستجو</button>
+</form>
+
+{% if courses %}
+  <div class="grid courses" style="grid-template-columns:repeat(3,1fr)">
+    {% for course in courses %}
+      {% include "partials/course_card.html" %}
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card empty-state">
+    <div class="glyph"><svg class="icon icon-lg"><use href="#i-search"/></svg></div>
+    <h3>دوره‌ای یافت نشد</h3>
+    <p class="small mt-8">فیلترها را تغییر دهید.</p>
+  </div>
+{% endif %}
+{% endblock %}

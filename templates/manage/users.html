@@ -1,0 +1,53 @@
+{% extends "partials/shell.html" %}
+{% load lms_extras %}
+
+{% block title %}کاربران | سماتک LMS{% endblock %}
+{% block page_title %}مدیریت کاربران{% endblock %}
+{% block breadcrumb %}کاربران{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div><h1>کاربران سامانه</h1><p>{{ users|length|fa }} کاربر با نقش‌های مختلف.</p></div>
+</div>
+
+<form class="card card-pad mb-24 row wrap" style="gap:12px;align-items:flex-end" method="get">
+  <div style="min-width:220px">
+    <label class="label">جستجو</label>
+    <input class="input" type="search" name="q" value="{{ q }}" placeholder="نام یا نام کاربری…">
+  </div>
+  <div style="min-width:180px">
+    <label class="label">نقش</label>
+    <select class="select" name="role" onchange="this.form.submit()">
+      <option value="">همه نقش‌ها</option>
+      {% for value, label in roles %}<option value="{{ value }}" {% if role == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+  </div>
+  <button class="btn btn-primary" type="submit">جستجو</button>
+</form>
+
+<div class="card">
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>کاربر</th><th>نام کاربری</th><th>نقش</th><th>موبایل</th><th>آخرین ورود</th><th>وضعیت</th></tr></thead>
+      <tbody>
+        {% for u in users %}
+          <tr>
+            <td><div class="row" style="gap:8px">
+              <span class="avatar avatar-sm">
+                {% if u.person.photo %}<img src="{{ u.person.photo.url }}" alt="">{% else %}{{ u.initials }}{% endif %}
+              </span>
+              <span class="strong">{{ u.display_name }}</span></div></td>
+            <td class="tiny ltr">{{ u.username }}</td>
+            <td><span class="badge {% if u.role == 'admin' %}badge-red{% elif u.role == 'teacher' %}badge-gold{% elif u.role == 'student' %}badge-blue{% else %}badge-gray{% endif %}">{{ u.get_role_display }}</span></td>
+            <td class="tiny muted ltr">{{ u.person.phone_number|default:"—" }}</td>
+            <td class="tiny muted">{{ u.last_login|jdate|default:"—" }}</td>
+            <td><span class="badge {% if u.is_active %}badge-green{% else %}badge-gray{% endif %}">{% if u.is_active %}فعال{% else %}غیرفعال{% endif %}</span></td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6" class="muted small center" style="padding:26px">کاربری یافت نشد.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "partials/shell.html" %}
+{% load lms_extras %}
+
+{% block title %}{{ lesson.title }} | سماتک LMS{% endblock %}
+{% block page_title %}{{ lesson.title|truncatechars:40 }}{% endblock %}
+{% block breadcrumb %}یادگیری / جلسه{% endblock %}
+
+{% block content %}
+<div class="learn-grid">
+  <div class="card lesson-list" style="order:2">
+    <div class="card-head"><h3>سرفصل‌ها</h3><a class="tiny" href="{% url 'learn_course' course.slug %}">نمای دوره</a></div>
+    {% for l in lessons %}
+      <a class="lesson-item {% if l.id == lesson.id %}active{% endif %}" href="{% url 'lesson_view' course.slug l.id %}">
+        <span class="state {% if l.id in done_ids %}done{% endif %}">{% if l.id in done_ids %}✓{% else %}{{ forloop.counter|fa }}{% endif %}</span>
+        <span class="grow">{{ l.title|truncatechars:32 }}</span>
+        {% if l.id == lesson.id %}<svg class="icon icon-sm"><use href="#i-play"/></svg>{% endif %}
+      </a>
+    {% endfor %}
+  </div>
+
+  <div style="order:1">
+    <div class="player mb-16">
+      <div class="play"><svg class="icon" style="width:24px;height:24px"><use href="#i-play"/></svg></div>
+      <div class="small" style="position:relative;z-index:2">پخش محتوای جلسه — {{ lesson.duration_minutes|fa }} دقیقه</div>
+      <div class="tiny" style="position:relative;z-index:2;color:#6f86a8">
+        {% if lesson.kind == 'video' %}ویدئو جلسه{% else %}{{ lesson.get_kind_display }}{% endif %} · نسخه دمو
+      </div>
+    </div>
+
+    <div class="card card-pad">
+      <div class="row-between mb-16">
+        <h2 style="font-size:17px">{{ lesson.title }}</h2>
+        <span class="badge badge-blue">{{ lesson.duration_minutes|fa }} دقیقه</span>
+      </div>
+      <p class="muted" style="line-height:2;font-size:13.5px">{{ lesson.description }}</p>
+
+      {% if lesson.file %}
+        <a class="btn btn-ghost btn-sm mt-16" href="{{ lesson.file.url }}" download>
+          <svg class="icon icon-sm"><use href="#i-download"/></svg> دانلود فایل جلسه
+        </a>
+      {% endif %}
+
+      <div class="row-between mt-24 wrap" style="gap:10px">
+        <div class="row">
+          {% if prev_lesson %}
+            <a class="btn btn-ghost btn-sm" href="{% url 'lesson_view' course.slug prev_lesson.id %}">
+              <svg class="icon icon-sm"><use href="#i-arrow-right"/></svg> جلسه قبل
+            </a>
+          {% endif %}
+          {% if next_lesson %}
+            <a class="btn btn-ghost btn-sm" href="{% url 'lesson_view' course.slug next_lesson.id %}">
+              جلسه بعد <svg class="icon icon-sm"><use href="#i-arrow-left"/></svg>
+            </a>
+          {% endif %}
+        </div>
+        {% if progress.is_completed %}
+          <span class="badge badge-green"><svg class="icon icon-sm"><use href="#i-check-circle"/></svg> تکمیل شده</span>
+        {% else %}
+          <form method="post" action="{% url 'complete_lesson' course.slug lesson.id %}">
+            {% csrf_token %}
+            <button class="btn btn-primary btn-sm" type="submit">
+              <svg class="icon icon-sm"><use href="#i-check"/></svg> تکمیل جلسه
+            </button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

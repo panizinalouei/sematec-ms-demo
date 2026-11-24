@@ -1,0 +1,50 @@
+{% extends "partials/shell.html" %}
+{% load lms_extras %}
+
+{% block title %}دوره‌های من | سماتک LMS{% endblock %}
+{% block page_title %}دوره‌های من{% endblock %}
+{% block breadcrumb %}یادگیری{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div><h1>دوره‌های من</h1><p>همه دوره‌هایی که در آن‌ها ثبت‌نام کرده‌اید.</p></div>
+  <a class="btn btn-primary" href="{% url 'courses' %}"><svg class="icon icon-sm"><use href="#i-plus"/></svg> دوره جدید</a>
+</div>
+
+<div class="grid" style="grid-template-columns:repeat(3,1fr)">
+  {% for en in enrollments %}
+    <div class="card card-hover" style="overflow:hidden">
+      <div style="aspect-ratio:16/9;overflow:hidden;background:var(--n-100)">
+        <img src="{{ en.course.cover_url }}" alt="" style="width:100%;height:100%;object-fit:cover">
+      </div>
+      <div style="padding:15px 17px">
+        <div class="row-between mb-8">
+          <span class="badge {{ en.course.level_class }}">{{ en.course.get_level_display }}</span>
+          <span class="badge {{ en.status|status_badge }}">{{ en.get_status_display }}</span>
+        </div>
+        <h3 style="font-size:14.5px;min-height:42px">{{ en.course.name }}</h3>
+        <div class="progress thin mt-8"><span style="width:{{ en.progress }}%"></span></div>
+        <div class="row-between mt-8">
+          <span class="tiny muted">{{ en.progress|fa }}٪ · {{ en.course.duration|hours }}</span>
+          <span class="tiny muted">{{ en.teacher.person.full_name|default:"" }}</span>
+        </div>
+        <div class="row mt-16">
+          <a class="btn btn-primary btn-sm grow" href="{% url 'learn_course' en.course.slug %}">
+            <svg class="icon icon-sm"><use href="#i-play"/></svg> {% if en.progress %}ادامه{% else %}شروع{% endif %}
+          </a>
+          {% if en.progress >= 100 and not en.certificate %}
+            <a class="btn btn-gold btn-sm" href="{% url 'certificate_issue' en.id %}">گواهی</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <div class="card empty-state" style="grid-column:1/-1">
+      <div class="glyph"><svg class="icon icon-lg"><use href="#i-book"/></svg></div>
+      <h3>هنوز دوره‌ای ندارید</h3>
+      <p class="small mt-8">از کاتالوگ، دوره مناسب را انتخاب کنید.</p>
+      <a class="btn btn-primary btn-sm mt-16" href="{% url 'courses' %}">مشاهده کاتالوگ</a>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

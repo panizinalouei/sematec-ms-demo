@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}ورود با موبایل | سماتک{% endblock %}
+
+{% block body %}
+<div class="auth">
+  <aside class="auth-side">
+    <img src="{% static 'img/logo.webp' %}" alt="سماتک" style="height:42px;width:fit-content;filter:brightness(0) invert(1)">
+    <div>
+      <span class="badge" style="background:rgba(255,195,0,.15);color:var(--gold-500);border:1px solid rgba(255,195,0,.3)">ورود سریع</span>
+      <h2>ورود با<br>شماره موبایل</h2>
+      <p>کد یک‌بارمصرف برای شما ارسال می‌شود. در نسخه دمو، کد روی صفحه نمایش داده می‌شود.</p>
+    </div>
+    <p class="tiny" style="color:#8fa4c9">© ۱۴۰۵ آموزشگاه سماتک</p>
+  </aside>
+
+  <main class="auth-main">
+    <div class="auth-box">
+      <div class="logo"><img src="{% static 'img/logo.webp' %}" alt="سماتک"></div>
+      <h1 style="font-size:22px;margin-bottom:5px">ورود با موبایل</h1>
+      <p class="muted small mb-24">شماره ثبت‌شده در سماتک را وارد کنید.</p>
+
+      <div class="tabs">
+        <a class="tab" href="{% url 'login' %}">نام کاربری</a>
+        <span class="tab active">موبایل</span>
+      </div>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="field">
+          <label class="label" for="phone">شماره موبایل</label>
+          <input class="input ltr" id="phone" name="phone" value="09120000001"
+                 placeholder="09120000001" inputmode="numeric" maxlength="11">
+          <div class="help">نمونه دمو: 09120000001</div>
+        </div>
+        <button class="btn btn-primary btn-block btn-lg" type="submit">دریافت کد</button>
+      </form>
+      <p class="small muted center mt-24"><a href="{% url 'login' %}">بازگشت</a></p>
+    </div>
+  </main>
+</div>
+{% endblock %}

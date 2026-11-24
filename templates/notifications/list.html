@@ -1,0 +1,45 @@
+{% extends "partials/shell.html" %}
+{% load lms_extras %}
+
+{% block title %}اعلان‌ها | سماتک LMS{% endblock %}
+{% block page_title %}اعلان‌ها{% endblock %}
+{% block breadcrumb %}اعلان‌ها{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div><h1>اعلان‌ها</h1><p>رویدادهای دوره، تکلیف، آزمون و نمره.</p></div>
+  <a class="btn btn-ghost btn-sm" href="{% url 'notifications_read_all' %}">
+    <svg class="icon icon-sm"><use href="#i-check"/></svg> خواندن همه
+  </a>
+</div>
+
+<div class="row wrap mb-16" style="gap:7px">
+  <a class="btn btn-sm {% if not active_kind %}btn-primary{% else %}btn-ghost{% endif %}" href="{% url 'notifications' %}">همه</a>
+  <a class="btn btn-sm {% if active_kind == 'assignment' %}btn-primary{% else %}btn-ghost{% endif %}" href="?kind=assignment">تکلیف</a>
+  <a class="btn btn-sm {% if active_kind == 'exam' %}btn-primary{% else %}btn-ghost{% endif %}" href="?kind=exam">آزمون</a>
+  <a class="btn btn-sm {% if active_kind == 'grade' %}btn-primary{% else %}btn-ghost{% endif %}" href="?kind=grade">نمره</a>
+  <a class="btn btn-sm {% if active_kind == 'class' %}btn-primary{% else %}btn-ghost{% endif %}" href="?kind=class">کلاس</a>
+</div>
+
+<div class="card">
+  {% for n in items %}
+    <div class="row" style="padding:15px 18px;border-bottom:1px solid var(--n-100);gap:12px;{% if not n.is_read %}background:var(--brand-50){% endif %}">
+      <span class="kpi-icon" style="width:38px;height:38px;margin:0;background:var(--n-100);color:var(--brand-600)">
+        <svg class="icon"><use href="#i-bell"/></svg></span>
+      <div class="grow">
+        <div class="row-between">
+          <span class="strong" style="font-size:13px">{{ n.title }}</span>
+          <span class="tiny muted">{{ n.created_at|jdate }}</span>
+        </div>
+        <div class="small muted mt-8">{{ n.body }}</div>
+        <div class="row mt-8" style="gap:12px">
+          {% if n.url %}<a class="tiny strong" href="{{ n.url }}">مشاهده</a>{% endif %}
+          {% if not n.is_read %}<a class="tiny muted" href="{% url 'notification_read' n.pk %}">علامت خوانده‌شده</a>{% endif %}
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <div class="empty-state"><div class="glyph"><svg class="icon icon-lg"><use href="#i-bell"/></svg></div><p class="small">اعلانی ندارید.</p></div>
+  {% endfor %}
+</div>
+{% endblock %}

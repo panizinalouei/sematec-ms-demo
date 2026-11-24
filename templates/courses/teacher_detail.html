@@ -1,0 +1,54 @@
+{% extends "partials/shell.html" %}
+{% load lms_extras %}
+
+{% block title %}{{ teacher.person.full_name }} | سماتک LMS{% endblock %}
+{% block page_title %}پروفایل استاد{% endblock %}
+{% block breadcrumb %}اساتید / {{ teacher.person.full_name }}{% endblock %}
+
+{% block content %}
+<div style="display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:start" class="td-grid">
+  <div class="card card-pad center">
+    <span class="avatar avatar-xl" style="margin:0 auto 14px">
+      {% if teacher.person.photo %}<img src="{{ teacher.person.photo.url }}" alt="{{ teacher.person.full_name }}">
+      {% else %}{{ teacher.person.initials }}{% endif %}
+    </span>
+    <h1 style="font-size:19px">{{ teacher.person.full_name }}</h1>
+    <p class="small muted mt-8">{{ teacher.headline }}</p>
+    <span class="badge badge-gold mt-16">{{ teacher.expertise }}</span>
+    <div class="spec-list mt-24" style="text-align:right">
+      <div class="spec"><span class="k">ساعت تدریس</span><span class="v">{{ teacher.teaching_hours|fa }}</span></div>
+      <div class="spec"><span class="k">سال تجربه</span><span class="v">{{ teacher.years_experience|fa }}</span></div>
+      <div class="spec"><span class="k">کد استاد</span><span class="v ltr">{{ teacher.teacher_code }}</span></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="card card-pad mb-24">
+      <h2 class="mb-16" style="font-size:16px">درباره استاد</h2>
+      <p class="muted" style="line-height:2.1">{{ teacher.bio|default:"توضیحی ثبت نشده است." }}</p>
+    </div>
+
+    {% if teacher.certifications.all %}
+      <div class="card card-pad mb-24">
+        <h2 class="mb-16" style="font-size:16px">مدارک</h2>
+        {% for tc in teacher.certifications.all %}
+          <div class="row" style="gap:8px;padding:5px 0">
+            <svg class="icon icon-sm" style="color:var(--brand-500)"><use href="#i-award"/></svg>
+            <span class="small">{{ tc.certification.title }}{% if tc.certification.vendor %} — {{ tc.certification.vendor }}{% endif %}</span>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <h2 class="mb-16" style="font-size:16px">دوره‌های این استاد</h2>
+    <div class="grid" style="grid-template-columns:repeat(2,1fr)">
+      {% for c in teacher.courses.all %}
+        {% include "partials/course_card.html" with course=c %}
+      {% empty %}
+        <p class="small muted">دوره‌ای تخصیص نیافته است.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+<style>@media(max-width:900px){.td-grid{grid-template-columns:1fr!important}}</style>
+{% endblock %}

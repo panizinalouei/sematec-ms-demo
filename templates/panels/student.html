@@ -1,0 +1,136 @@
+{% extends "partials/shell.html" %}
+{% load lms_extras %}
+
+{% block title %}داشبورد دانشجو | سماتک LMS{% endblock %}
+{% block page_title %}داشبورد من{% endblock %}
+{% block breadcrumb %}دانشجو{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>سلام {{ user.display_name }} 👋</h1>
+    <p>{% if continue_enrollment %}ادامه بده — «{{ continue_enrollment.course.name }}» منتظر توست.{% else %}به سامانه یادگیری سماتک خوش آمدی.{% endif %}</p>
+  </div>
+  <a class="btn btn-primary" href="{% url 'courses' %}">
+    <svg class="icon icon-sm"><use href="#i-plus"/></svg> دوره جدید
+  </a>
+</div>
+
+<div class="kpi-grid mb-24">
+  <div class="kpi">
+    <div class="kpi-icon" style="background:var(--brand-50);color:var(--brand-600)"><svg class="icon"><use href="#i-book"/></svg></div>
+    <div class="value">{{ active_count|fa }}</div><div class="label">دوره فعال</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-icon" style="background:var(--success-soft);color:#157a3a"><svg class="icon"><use href="#i-chart"/></svg></div>
+    <div class="value">{{ avg_progress|fa }}<small>٪</small></div><div class="label">میانگین پیشرفت</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-icon" style="background:var(--gold-100);color:var(--gold-700)"><svg class="icon"><use href="#i-clock"/></svg></div>
+    <div class="value">{{ study_hours|fa }}<small> ساعت</small></div><div class="label">زمان مطالعه</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-icon" style="background:#f3e8ff;color:#7c3aed"><svg class="icon"><use href="#i-badge"/></svg></div>
+    <div class="value">{{ certificates|fa }}</div><div class="label">گواهی</div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1.6fr 1fr;gap:18px;align-items:start" class="dash-grid">
+  <div>
+    <div class="card card-pad mb-24">
+      <div class="row-between mb-16">
+        <h3>دوره‌های من</h3>
+        <a class="small strong" href="{% url 'my_courses' %}">همه</a>
+      </div>
+      {% for en in enrollments %}
+        <div class="course-row">
+          <img class="course-thumb" src="{{ en.course.cover_url }}" alt="">
+          <div class="grow">
+            <div class="row-between" style="margin-bottom:5px">
+              <a class="strong" style="font-size:13.5px;color:var(--n-900)" href="{% url 'learn_course' en.course.slug %}">{{ en.course.name }}</a>
+              <span class="badge {{ en.status|status_badge }}">{{ en.get_status_display }}</span>
+            </div>
+            <div class="progress thin"><span style="width:{{ en.progress }}%"></span></div>
+            <div class="row-between mt-8">
+              <span class="tiny muted">{{ en.progress|fa }}٪ · {{ en.course.duration|hours }}</span>
+              <a class="tiny strong" href="{% url 'learn_course' en.course.slug %}">{% if en.progress %}ادامه{% else %}شروع{% endif %} ←</a>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="empty-state" style="padding:28px">
+          <div class="glyph"><svg class="icon icon-lg"><use href="#i-book"/></svg></div>
+          <p class="small">هنوز در دوره‌ای ثبت‌نام نکرده‌اید.</p>
+          <a class="btn btn-primary btn-sm mt-16" href="{% url 'courses' %}">مشاهده دوره‌ها</a>
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if progress_items %}
+      <div class="card card-pad">
+        <h3 class="mb-16">درصد پیشرفت هر دوره</h3>
+        <div class="bars">
+          {% for p in progress_items %}
+            <div class="bar-col">
+              <span class="val">{{ p.progress|fa }}٪</span>
+              <div class="bar" style="height:{{ p.progress }}%"></div>
+              <span class="lbl">{{ p.title|truncatechars:12 }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div>
+    <div class="card card-pad mb-16" style="background:linear-gradient(135deg,#001440,#00408f);border:none;color:#fff">
+      <div class="row" style="gap:9px;margin-bottom:9px">
+        <svg class="icon" style="color:var(--gold-500)"><use href="#i-calendar"/></svg>
+        <span class="small" style="color:#c9d8ef">کلاس بعدی</span>
+      </div>
+      {% if next_session %}
+        <div class="strong" style="font-size:14.5px;color:#fff">{{ next_session.classroom.course.name }}</div>
+        <div class="small mt-8" style="color:#c9d8ef">{{ next_session.date|jdate:"full" }} · {{ next_session.start_time|time:"H:i" }}</div>
+        <a class="btn btn-gold btn-sm mt-16" href="{% url 'learn_course' next_session.classroom.course.slug %}">ورود به کلاس</a>
+      {% else %}
+        <div class="small" style="color:#c9d8ef">کلاس آینده‌ای ثبت نشده است.</div>
+      {% endif %}
+    </div>
+
+    <div class="card mb-16">
+      <div class="card-head"><h3>تکالیف باقی‌مانده</h3><a class="tiny strong" href="{% url 'assignments' %}">همه</a></div>
+      <div style="padding:4px 18px 12px">
+        {% for a in pending_assignments %}
+          <div style="padding:10px 0;border-bottom:1px solid var(--n-100)">
+            <a class="strong" style="font-size:12.5px;color:var(--n-800)" href="{% url 'assignment_detail' a.pk %}">{{ a.title|truncatechars:32 }}</a>
+            <div class="row-between mt-8">
+              <span class="tiny muted">{{ a.course.name|truncatechars:18 }}</span>
+              <span class="tiny" style="color:var(--warning)">مهلت: {{ a.due_date|jdate }}</span>
+            </div>
+          </div>
+        {% empty %}
+          <p class="small muted" style="padding:12px 0">تکلیف باقی‌مانده‌ای نداری 🎉</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>آزمون‌های پیش رو</h3><a class="tiny strong" href="{% url 'exams' %}">همه</a></div>
+      <div style="padding:4px 18px 12px">
+        {% for exam in exams %}
+          <div style="padding:10px 0;border-bottom:1px solid var(--n-100)">
+            <div class="strong" style="font-size:12.5px">{{ exam.title|truncatechars:32 }}</div>
+            <div class="row-between mt-8">
+              <span class="tiny muted">{{ exam.duration_minutes|fa }} دقیقه</span>
+              <a class="tiny strong" href="{% url 'exam_start' exam.pk %}">شروع ←</a>
+            </div>
+          </div>
+        {% empty %}
+          <p class="small muted" style="padding:12px 0">آزمونی در پیش نیست.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+<style>@media(max-width:1000px){.dash-grid{grid-template-columns:1fr!important}}</style>
+{% endblock %}
